@@ -62,11 +62,18 @@ var clone = function(fn) {
 };
 
 if(require.main == module) {
-    program
+    program	
+	.option('-u, --url <url>', 'path to file via url')
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
         .parse(process.argv);
-    var checkJson = checkHtmlFile(program.file, program.checks);
+    if(program.file){
+	var checkJson = checkHtmlFile(program.file, program.checks);
+	console.log("index file given " + program.file);
+    }
+    if(program.url){
+	console.log("parameter not defined yet " + program.url);
+    }
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
 } else {
