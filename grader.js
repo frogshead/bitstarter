@@ -24,6 +24,9 @@ References:
 var fs = require('fs');
 var program = require('commander');
 var cheerio = require('cheerio');
+var restler = require('restler');
+var sys = require('util');
+var htmlfile = '';
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
 
@@ -36,6 +39,20 @@ var assertFileExists = function(infile) {
     return instr;
 };
 
+var assertUrlFileExists = function(url) {
+	
+	restler.get(url).on('complete', function(result){
+			if(result instanceof Error){
+				sys.puts('Error: ' + result);
+				this.retry(5000);
+			}else{
+				debugger;
+				fs.writeFileSync('myfile.html', result.toString(), function(err){
+						if(err) throw err;
+					console.log('Saved');
+				 });
+	}});
+};
 var cheerioHtmlFile = function(htmlfile) {
     return cheerio.load(fs.readFileSync(htmlfile));
 };
@@ -55,6 +72,9 @@ var checkHtmlFile = function(htmlfile, checksfile) {
     return out;
 };
 
+var checkUrlHtmlFile = function(htmlfile, checksfile){
+}	
+
 var clone = function(fn) {
     // Workaround for commander.js issue.
     // http://stackoverflow.com/a/6772648
@@ -63,19 +83,31 @@ var clone = function(fn) {
 
 if(require.main == module) {
     program	
-	.option('-u, --url <url>', 'path to file via url')
+	.option('-u, --url <url>', 'path to file via url', clone(assertUrlFileExists))
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
         .parse(process.argv);
-    if(program.file){
-	var checkJson = checkHtmlFile(program.file, program.checks);
-	console.log("index file given " + program.file);
+    
+    if(program.url){
+    	var checkJson = checkHtmlFile('myfile.html', program.checks);
+    	var outJson = JSON.stringify(checkJson, null, 4);
+    	console.log(outJson)
     }
+    else if(program.file){
+    	var checkJson = checkHtmlFile(program.file, program.checks);
+    	console.log("index file given " + program.file);
+    }
+    
+    /*
     if(program.url){
 	console.log("parameter not defined yet " + program.url);
     }
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
-} else {
+    */
+}
+/*
+else {
     exports.checkHtmlFile = checkHtmlFile;
 }
+*/
