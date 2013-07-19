@@ -46,11 +46,13 @@ var assertUrlFileExists = function(url) {
 				sys.puts('Error: ' + result);
 				this.retry(5000);
 			}else{
-				debugger;
-				fs.writeFileSync('myfile.html', result.toString(), function(err){
+				
+				fs.writeFileSync('myfile.html', result, 'utf-8',function(err){
 						if(err) throw err;
+					
 					console.log('Saved');
 				 });
+				debugger;
 	}});
 };
 var cheerioHtmlFile = function(htmlfile) {
@@ -91,11 +93,13 @@ if(require.main == module) {
     if(program.url){
     	var checkJson = checkHtmlFile('myfile.html', program.checks);
     	var outJson = JSON.stringify(checkJson, null, 4);
-    	console.log(outJson)
+    	console.log(outJson);
     }
     else if(program.file){
     	var checkJson = checkHtmlFile(program.file, program.checks);
-    	console.log("index file given " + program.file);
+    	var outJson = JSON.stringify(checkJson, null, 4);
+    	console.log(outJson);
+    	//console.log("index file given " + program.file);
     }
     
     /*
@@ -106,8 +110,7 @@ if(require.main == module) {
     console.log(outJson);
     */
 }
-/*
+
 else {
     exports.checkHtmlFile = checkHtmlFile;
 }
-*/
